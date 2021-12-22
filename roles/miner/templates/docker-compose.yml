@@ -6,7 +6,7 @@ services:
     image: quay.io/team-helium/miner:{{ target_miner_tag }}
     container_name: miner
     environment:
-      - REGION_OVERRIDE=US915
+      - REGION_OVERRIDE={{ target_miner_region }}
     ports:
       - "44158:44158/tcp"
       - "1680:1680/udp"
@@ -33,12 +33,16 @@ services:
 
 {% if enable_packet_forwarder %}
   packet_forwarder:
-    image: PF_IMAGE_HERE:latest
+    image: {{ target_pf_image }}:{{ target_pf_tag }}
     container_name: pf
     environment:
-      - VENDOR={{ target_miner_vendor }}
+      - VENDOR={{ target_hotspot_vendor }}
+      - REGION={{ target_miner_region }}
+      - CONCENTRATOR_INTERFACE={{ target_pf_concentrator_interface }}
+      - CONCENTRATOR_MODEL={{ target_pf_concentrator_model }}
     volumes:
       - /home/pi/pf:/opt/packet_forwarder/configs
+      - /sys/class/gpio:/sys/class/gpio
     networks:
       - helium
     privileged: true
